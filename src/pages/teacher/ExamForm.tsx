@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useExams } from '../../context/ExamContext';
@@ -43,13 +42,12 @@ const QuestionEditor: React.FC<{
   };
 
   const handleTypeChange = (type: QuestionType) => {
-    // Update question type and reset options/correctAnswer if needed
     const updatedQuestion: Question = { 
       ...question, 
       type,
-      options: type === 'multiple_choice' ? (question.options || ['', '']) : undefined,
+      options: type === 'multiple_choice' ? (question.options || ['Option 1', 'Option 2']) : undefined,
       correctAnswer: type === 'multiple_choice' 
-        ? (question.options?.[0] || '') 
+        ? (question.options?.[0] || 'Option 1') 
         : (type === 'short_answer' ? '' : undefined)
     };
     onChange(updatedQuestion);
@@ -71,10 +69,9 @@ const QuestionEditor: React.FC<{
     if (!question.options || question.options.length <= 2) return;
     const updatedOptions = question.options.filter((_, i) => i !== index);
     
-    // If the correct answer was the removed option, reset it
     let updatedCorrectAnswer = question.correctAnswer;
     if (question.correctAnswer === question.options[index]) {
-      updatedCorrectAnswer = updatedOptions[0];
+      updatedCorrectAnswer = updatedOptions[0] || 'Option 1';
     }
     
     onChange({ 
@@ -202,7 +199,7 @@ const QuestionEditor: React.FC<{
             <div className="space-y-2 mt-4">
               <Label>Correct Answer</Label>
               <Select
-                value={question.correctAnswer as string || ''}
+                value={question.correctAnswer as string || 'none'}
                 onValueChange={handleCorrectAnswerChange}
               >
                 <SelectTrigger>
@@ -210,10 +207,17 @@ const QuestionEditor: React.FC<{
                 </SelectTrigger>
                 <SelectContent>
                   {question.options.map((option, i) => (
-                    <SelectItem key={i} value={option} disabled={!option.trim()}>
+                    <SelectItem 
+                      key={i} 
+                      value={option || `placeholder-${i}`} 
+                      disabled={!option.trim()}
+                    >
                       {option || `Option ${i + 1} (empty)`}
                     </SelectItem>
                   ))}
+                  {!question.options.some(option => option.trim()) && (
+                    <SelectItem value="none">Please add some options first</SelectItem>
+                  )}
                 </SelectContent>
               </Select>
             </div>
@@ -273,14 +277,13 @@ const ExamForm: React.FC = () => {
         });
       }
     } else {
-      // Initialize with a default question for new exams
       setQuestions([
         {
           id: `q-${Date.now()}`,
           type: 'multiple_choice',
           question: '',
-          options: ['', ''],
-          correctAnswer: '',
+          options: ['Option 1', 'Option 2'],
+          correctAnswer: 'Option 1',
           points: 1
         }
       ]);
@@ -328,8 +331,8 @@ const ExamForm: React.FC = () => {
       id: `q-${Date.now()}`,
       type: 'multiple_choice',
       question: '',
-      options: ['', ''],
-      correctAnswer: '',
+      options: ['Option 1', 'Option 2'],
+      correctAnswer: 'Option 1',
       points: 1
     };
     
