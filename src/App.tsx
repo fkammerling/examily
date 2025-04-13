@@ -3,7 +3,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import Login from "./pages/Login";
@@ -15,6 +15,11 @@ import ExamResults from "./pages/student/ExamResults";
 import ExamPreview from "./pages/teacher/ExamPreview";
 import { AuthProvider } from "./context/AuthContext";
 import { ExamProvider } from "./context/ExamContext";
+import LandingPage from "./pages/LandingPage";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
+import ClassesPage from "./pages/teacher/ClassesPage";
+import ClassDetails from "./pages/teacher/ClassDetails";
 
 const queryClient = new QueryClient();
 
@@ -27,15 +32,20 @@ const App = () => (
           <Sonner />
           <BrowserRouter>
             <Routes>
+              <Route path="/" element={<LandingPage />} />
               <Route path="/login" element={<Login />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
+              <Route path="/reset-password" element={<ResetPassword />} />
               
               <Route element={<AppLayout />}>
-                <Route path="/" element={<Dashboard />} />
+                <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/exams/create" element={<ExamForm />} />
                 <Route path="/exams/edit/:examId" element={<ExamForm />} />
                 <Route path="/exams/view/:examId" element={<ExamPreview />} />
                 <Route path="/exams/take/:examId" element={<ExamTaking />} />
                 <Route path="/results/:attemptId" element={<ExamResults />} />
+                <Route path="/classes" element={<ClassesPage />} />
+                <Route path="/classes/:classId" element={<ClassDetails />} />
               </Route>
               
               <Route path="*" element={<NotFound />} />

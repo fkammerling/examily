@@ -1,18 +1,27 @@
 
 import React from 'react';
 import { useAuth } from '../../context/AuthContext';
-import { Navigate, Outlet } from 'react-router-dom';
+import { Navigate, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import Header from './Header';
 import { Loader2 } from 'lucide-react';
 
 const AppLayout: React.FC = () => {
   const { user, isLoading } = useAuth();
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  // Redirect to dashboard if user tries to access the root path
+  React.useEffect(() => {
+    if (user && location.pathname === '/') {
+      navigate('/dashboard');
+    }
+  }, [user, location.pathname, navigate]);
 
   if (isLoading) {
     return (
       <div className="h-screen w-full flex flex-col items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-green-600" />
-        <p className="mt-4 text-lg text-green-800">Loading...</p>
+        <Loader2 className="h-8 w-8 animate-spin text-lime-500" />
+        <p className="mt-4 text-lg text-lime-800">Loading...</p>
       </div>
     );
   }
@@ -27,8 +36,8 @@ const AppLayout: React.FC = () => {
       <main className="flex-grow container mx-auto px-4 py-8">
         <Outlet />
       </main>
-      <footer className="py-4 bg-green-800 text-white text-center">
-        <p className="text-sm">© {new Date().getFullYear()} Green Exam Hub</p>
+      <footer className="py-4 bg-lime-500 text-black text-center">
+        <p className="text-sm">© {new Date().getFullYear()} GreenExam Hub</p>
       </footer>
     </div>
   );
