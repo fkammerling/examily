@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
@@ -154,47 +155,41 @@ const ClassDetails: React.FC = () => {
     try {
       setLoading(true);
       
-      const { data, error } = await supabase
+      // First get all students enrolled in this class
+      const { data: enrollmentData, error: enrollmentError } = await supabase
         .from('class_students')
-        .select(`
-          id,
-          student_id,
-          joined_at,
-          profiles:profiles(
-            name,
-            student_id,
-            grade
-          )
-        `)
+        .select('id, student_id, joined_at')
         .eq('class_id', classId);
       
-      if (error) throw error;
+      if (enrollmentError) throw enrollmentError;
       
-      if (!data || data.length === 0) {
+      if (!enrollmentData || enrollmentData.length === 0) {
         setStudents([]);
         setLoading(false);
         return;
       }
       
-      const studentIds = data.map((item: StudentData) => item.student_id);
+      const studentIds = enrollmentData.map(item => item.student_id);
       
-      const { data: usersData, error: usersError } = await supabase
+      // Then get their profile data
+      const { data: profilesData, error: profilesError } = await supabase
         .from('profiles')
-        .select('id, name')
+        .select('id, name, student_id, grade')
         .in('id', studentIds);
       
-      if (usersError) throw usersError;
+      if (profilesError) throw profilesError;
       
-      const formattedStudents = data.map((item: StudentData) => {
-        const userData = usersData?.find(u => u.id === item.student_id);
+      // Combine the data
+      const formattedStudents = enrollmentData.map(enrollment => {
+        const profile = profilesData?.find(p => p.id === enrollment.student_id) || null;
         
         return {
-          id: item.student_id,
-          email: userData?.id ? `${userData.id.substring(0, 8)}...@example.com` : 'Unknown',
-          name: item.profiles?.name || userData?.name || null,
-          student_id: item.profiles?.student_id || null,
-          grade: item.profiles?.grade || null,
-          joined_at: item.joined_at
+          id: enrollment.student_id,
+          email: enrollment.student_id ? `${enrollment.student_id.substring(0, 8)}...@example.com` : 'Unknown',
+          name: profile?.name || null,
+          student_id: profile?.student_id || null,
+          grade: profile?.grade || null,
+          joined_at: enrollment.joined_at
         };
       });
       
@@ -329,7 +324,7 @@ const ClassDetails: React.FC = () => {
       const { data: profileData, error: profileError } = await supabase
         .from('profiles')
         .select('id, role')
-        .eq('id', userData?.user?.id)
+        .eq('id', userData?.user?.id || '')
         .single();
       
       if (profileError) {
