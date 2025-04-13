@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useExams } from '../../context/ExamContext';
 import { useAuth } from '../../context/AuthContext';
@@ -7,18 +6,16 @@ import { Button } from '../../components/ui/button';
 import { BookOpen, CheckCircle, Clock, AlertCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Badge } from '@/components/ui/badge';
+import { format } from 'date-fns';
 
 const StudentDashboard: React.FC = () => {
   const { user } = useAuth();
   const { exams, studentAttempts } = useExams();
   
-  // Filter active exams
   const activeExams = exams.filter(exam => exam.isActive);
   
-  // Get the student's attempts
   const userAttempts = studentAttempts.filter(attempt => attempt.studentId === user?.id);
   
-  // For each exam, check if the student has already attempted it
   const examStatus = activeExams.map(exam => {
     const attempts = userAttempts.filter(attempt => attempt.examId === exam.id);
     const hasSubmitted = attempts.some(attempt => attempt.submittedAt);
