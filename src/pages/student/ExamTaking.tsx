@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { useExams } from '../../context/ExamContext';
@@ -100,19 +99,31 @@ const ExamTaking: React.FC = () => {
         }
       } else {
         // Invalid attempt ID, start a new one
-        const newAttempt = startExam(examId);
-        setAttempt(newAttempt);
-        if (examData.timeLimit) {
-          setTimeLeft(examData.timeLimit * 60);
-        }
+        startExam(examId)
+          .then(newAttempt => {
+            setAttempt(newAttempt);
+            if (examData.timeLimit) {
+              setTimeLeft(examData.timeLimit * 60);
+            }
+          })
+          .catch(error => {
+            console.error("Error starting exam:", error);
+            navigate('/');
+          });
       }
     } else {
       // Start a new attempt
-      const newAttempt = startExam(examId);
-      setAttempt(newAttempt);
-      if (examData.timeLimit) {
-        setTimeLeft(examData.timeLimit * 60);
-      }
+      startExam(examId)
+        .then(newAttempt => {
+          setAttempt(newAttempt);
+          if (examData.timeLimit) {
+            setTimeLeft(examData.timeLimit * 60);
+          }
+        })
+        .catch(error => {
+          console.error("Error starting exam:", error);
+          navigate('/');
+        });
     }
     
     setLoading(false);

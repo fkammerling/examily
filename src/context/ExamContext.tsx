@@ -4,6 +4,7 @@ import { Exam, Question, StudentExamAttempt, User } from '../types';
 import { useAuth } from './AuthContext';
 import { toast } from '../hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { Json } from '@/integrations/supabase/types';
 
 type ExamContextType = {
   exams: Exam[];
@@ -90,7 +91,7 @@ export const ExamProvider: React.FC<{ children: React.ReactNode }> = ({ children
           createdBy: exam.created_by,
           isActive: exam.is_active,
           timeLimit: exam.time_limit,
-          questions: exam.questions,
+          questions: exam.questions as Question[],
           createdAt: new Date(exam.created_at)
         }));
         
@@ -138,7 +139,7 @@ export const ExamProvider: React.FC<{ children: React.ReactNode }> = ({ children
           id: attempt.id,
           examId: attempt.exam_id,
           studentId: attempt.student_id,
-          answers: attempt.answers || [],
+          answers: (attempt.answers as { questionId: string; answer: string | string[] }[]) || [],
           startedAt: new Date(attempt.started_at),
           submittedAt: attempt.submitted_at ? new Date(attempt.submitted_at) : undefined,
           score: attempt.score
@@ -169,7 +170,7 @@ export const ExamProvider: React.FC<{ children: React.ReactNode }> = ({ children
           description: examData.description,
           is_active: examData.isActive,
           time_limit: examData.timeLimit,
-          questions: examData.questions,
+          questions: examData.questions as unknown as Json,
           created_by: user.id
         })
         .select()
@@ -185,7 +186,7 @@ export const ExamProvider: React.FC<{ children: React.ReactNode }> = ({ children
           createdBy: data.created_by,
           isActive: data.is_active,
           timeLimit: data.time_limit,
-          questions: data.questions,
+          questions: data.questions as Question[],
           createdAt: new Date(data.created_at)
         };
         
@@ -217,7 +218,7 @@ export const ExamProvider: React.FC<{ children: React.ReactNode }> = ({ children
           description: updatedExam.description,
           is_active: updatedExam.isActive,
           time_limit: updatedExam.timeLimit,
-          questions: updatedExam.questions
+          questions: updatedExam.questions as unknown as Json
         })
         .eq('id', updatedExam.id)
         .eq('created_by', user.id);
@@ -311,7 +312,7 @@ export const ExamProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return exams.find(exam => exam.id === examId);
   };
 
-  const startExam = async (examId: string) => {
+  const startExam = async (examId: string): Promise<StudentExamAttempt> => {
     if (!user || !session) {
       throw new Error('User must be logged in to start an exam');
     }
@@ -343,7 +344,7 @@ export const ExamProvider: React.FC<{ children: React.ReactNode }> = ({ children
         id: data.id,
         examId: data.exam_id,
         studentId: data.student_id,
-        answers: data.answers || [],
+        answers: data.answers as { questionId: string; answer: string | string[] }[] || [],
         startedAt: new Date(data.started_at)
       };
       
@@ -399,7 +400,7 @@ export const ExamProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const { error } = await supabase
         .from('exam_attempts')
         .update({
-          answers: attempt.answers,
+          answers: attempt.answers as unknown as Json,
           submitted_at: new Date().toISOString(),
           score: calculatedScore
         })
