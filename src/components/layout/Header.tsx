@@ -9,8 +9,8 @@ const Header: React.FC = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
+    await logout();
     navigate('/login');
   };
 
@@ -21,7 +21,7 @@ const Header: React.FC = () => {
           <Link to="/" className="flex items-center space-x-2">
             <BookOpen className="h-6 w-6 text-green-600" />
             <span className="text-xl font-semibold text-green-800">
-              Green Exam Hub
+              Examily
             </span>
           </Link>
 

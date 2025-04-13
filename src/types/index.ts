@@ -6,6 +6,7 @@ export interface User {
   name: string;
   email: string;
   role: UserRole;
+  avatarUrl?: string;
 }
 
 export type QuestionType = 'multiple_choice' | 'short_answer' | 'long_answer';
