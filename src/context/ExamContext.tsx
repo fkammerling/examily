@@ -179,6 +179,9 @@ export const ExamProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (error) throw error;
       
       if (data) {
+        // Fix the type conversion here with a more explicit casting
+        const questionsData = data.questions as unknown as Question[];
+        
         const newExam: Exam = {
           id: data.id,
           title: data.title,
@@ -186,7 +189,7 @@ export const ExamProvider: React.FC<{ children: React.ReactNode }> = ({ children
           createdBy: data.created_by,
           isActive: data.is_active,
           timeLimit: data.time_limit,
-          questions: data.questions as Question[],
+          questions: questionsData,
           createdAt: new Date(data.created_at)
         };
         
