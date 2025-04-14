@@ -299,6 +299,7 @@ const ClassDetails: React.FC = () => {
     try {
       setIsProcessing(true);
       
+      // Attempt to find the user by email
       const { data: userData, error: userError } = await supabase.auth
         .signInWithOtp({
           email: studentEmail.trim(),
@@ -321,10 +322,21 @@ const ClassDetails: React.FC = () => {
         return;
       }
       
+      // Check if userData and userData.user exist before proceeding
+      if (!userData || !userData.user) {
+        toast({
+          title: 'User Not Found',
+          description: 'No user was found with this email address',
+          variant: 'destructive'
+        });
+        setIsProcessing(false);
+        return;
+      }
+      
       const { data: profileData, error: profileError } = await supabase
         .from('profiles')
         .select('id, role')
-        .eq('id', userData?.user?.id || '')
+        .eq('id', userData.user.id)
         .single();
       
       if (profileError) {
