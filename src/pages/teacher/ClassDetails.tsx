@@ -335,7 +335,7 @@ const ClassDetails: React.FC = () => {
         .eq('id', userData.user.id)
         .single();
       
-      if (profileError || !profileData) {
+      if (profileError) {
         toast({
           title: 'User Not Found',
           description: 'No user was found with this email address',
@@ -345,7 +345,8 @@ const ClassDetails: React.FC = () => {
         return;
       }
       
-      if (!profileData || typeof profileData !== 'object' || !('id' in profileData) || !('role' in profileData)) {
+      if (!profileData || typeof profileData !== 'object' || 
+          !profileData.hasOwnProperty('id') || !profileData.hasOwnProperty('role')) {
         toast({
           title: 'Profile Error',
           description: 'Could not retrieve user profile data',
@@ -355,7 +356,10 @@ const ClassDetails: React.FC = () => {
         return;
       }
       
-      if (profileData.role !== 'student') {
+      const profileId = profileData.id as string;
+      const profileRole = profileData.role as string | null;
+      
+      if (profileRole !== 'student') {
         toast({
           title: 'Not a Student',
           description: 'This user is not registered as a student',
@@ -369,7 +373,7 @@ const ClassDetails: React.FC = () => {
         .from('class_students')
         .select('id')
         .eq('class_id', classId)
-        .eq('student_id', profileData.id);
+        .eq('student_id', profileId);
       
       if (existingError) throw existingError;
       
@@ -388,7 +392,7 @@ const ClassDetails: React.FC = () => {
         .insert([
           {
             class_id: classId,
-            student_id: profileData.id
+            student_id: profileId
           }
         ]);
       
