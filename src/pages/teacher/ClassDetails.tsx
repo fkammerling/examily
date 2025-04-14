@@ -339,7 +339,7 @@ const ClassDetails: React.FC = () => {
         .eq('id', userData.user.id)
         .single();
       
-      if (profileError) {
+      if (profileError || !profileData) {
         toast({
           title: 'User Not Found',
           description: 'No user was found with this email address',
