@@ -52,6 +52,12 @@ interface StudentsTabProps {
   loading: boolean;
 }
 
+interface ProfileData {
+  id: string;
+  role: string | null;
+  [key: string]: any;
+}
+
 const StudentsTab: React.FC<StudentsTabProps> = ({ 
   classId, 
   students, 
@@ -125,8 +131,11 @@ const StudentsTab: React.FC<StudentsTabProps> = ({
         return;
       }
       
-      if (!profileData || typeof profileData !== 'object' || 
-          !profileData.hasOwnProperty('id') || !profileData.hasOwnProperty('role')) {
+      // Type guard to ensure profileData has the expected properties
+      if (!profileData || 
+          typeof profileData !== 'object' || 
+          !('id' in profileData) || 
+          !('role' in profileData)) {
         toast({
           title: 'Profile Error',
           description: 'Could not retrieve user profile data',
@@ -135,9 +144,10 @@ const StudentsTab: React.FC<StudentsTabProps> = ({
         setIsProcessing(false);
         return;
       }
-      
-      const profileId = profileData.id as string;
-      const profileRole = profileData.role as string | null;
+
+      const typedProfileData = profileData as ProfileData;
+      const profileId = typedProfileData.id;
+      const profileRole = typedProfileData.role;
       
       if (profileRole !== 'student') {
         toast({
