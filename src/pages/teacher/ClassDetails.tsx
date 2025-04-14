@@ -74,9 +74,11 @@ interface Student {
 }
 
 interface ProfileData {
+  id: string | null;
   name: string | null;
   student_id: string | null;
   grade: string | null;
+  role?: string | null;
 }
 
 interface StudentData {
@@ -343,7 +345,7 @@ const ClassDetails: React.FC = () => {
         return;
       }
       
-      if (!profileData || typeof profileData !== 'object') {
+      if (!profileData || typeof profileData !== 'object' || !('id' in profileData) || !('role' in profileData)) {
         toast({
           title: 'Profile Error',
           description: 'Could not retrieve user profile data',
