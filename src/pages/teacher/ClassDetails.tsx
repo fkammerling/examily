@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
@@ -155,7 +154,6 @@ const ClassDetails: React.FC = () => {
     try {
       setLoading(true);
       
-      // First get all students enrolled in this class
       const { data: enrollmentData, error: enrollmentError } = await supabase
         .from('class_students')
         .select('id, student_id, joined_at')
@@ -171,7 +169,6 @@ const ClassDetails: React.FC = () => {
       
       const studentIds = enrollmentData.map(item => item.student_id);
       
-      // Then get their profile data
       const { data: profilesData, error: profilesError } = await supabase
         .from('profiles')
         .select('id, name, student_id, grade')
@@ -179,7 +176,6 @@ const ClassDetails: React.FC = () => {
       
       if (profilesError) throw profilesError;
       
-      // Combine the data
       const formattedStudents = enrollmentData.map(enrollment => {
         const profile = profilesData?.find(p => p.id === enrollment.student_id) || null;
         
@@ -299,7 +295,6 @@ const ClassDetails: React.FC = () => {
     try {
       setIsProcessing(true);
       
-      // Attempt to find the user by email
       const { data: userData, error: userError } = await supabase.auth
         .signInWithOtp({
           email: studentEmail.trim(),
@@ -322,7 +317,6 @@ const ClassDetails: React.FC = () => {
         return;
       }
       
-      // Check if userData and userData.user exist before proceeding
       if (!userData || !userData.user) {
         toast({
           title: 'User Not Found',
@@ -343,6 +337,16 @@ const ClassDetails: React.FC = () => {
         toast({
           title: 'User Not Found',
           description: 'No user was found with this email address',
+          variant: 'destructive'
+        });
+        setIsProcessing(false);
+        return;
+      }
+      
+      if (!profileData || typeof profileData !== 'object') {
+        toast({
+          title: 'Profile Error',
+          description: 'Could not retrieve user profile data',
           variant: 'destructive'
         });
         setIsProcessing(false);
