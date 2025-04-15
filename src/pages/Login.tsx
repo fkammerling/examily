@@ -7,10 +7,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
-import { BookOpen, Loader2, Mail } from 'lucide-react';
+import { BookOpen, Loader2, Mail, Select } from 'lucide-react';
 import { useToast } from '../hooks/use-toast';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Select as SelectField, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { supabase } from '@/integrations/supabase/client';
 
 const Login: React.FC = () => {
@@ -336,7 +336,7 @@ const Login: React.FC = () => {
                       
                       <div className="space-y-2">
                         <Label htmlFor="class">Join Class (Optional)</Label>
-                        <Select
+                        <SelectField
                           value={selectedClass}
                           onValueChange={setSelectedClass}
                         >
@@ -356,7 +356,7 @@ const Login: React.FC = () => {
                               </SelectItem>
                             )}
                           </SelectContent>
-                        </Select>
+                        </SelectField>
                       </div>
                     </>
                   )}

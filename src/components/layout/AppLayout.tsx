@@ -20,8 +20,8 @@ const AppLayout: React.FC = () => {
   if (isLoading) {
     return (
       <div className="h-screen w-full flex flex-col items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-[#abfb6b]" />
-        <p className="mt-4 text-lg text-gray-800">Loading...</p>
+        <Loader2 className="h-8 w-8 animate-spin text-lime-500" />
+        <p className="mt-4 text-lg text-lime-800">Loading...</p>
       </div>
     );
   }
@@ -36,7 +36,7 @@ const AppLayout: React.FC = () => {
       <main className="flex-grow container mx-auto px-4 py-8">
         <Outlet />
       </main>
-      <footer className="py-4 bg-[#abfb6b] text-black text-center">
+      <footer className="py-4 bg-lime-500 text-black text-center">
         <p className="text-sm">© {new Date().getFullYear()} GreenExam Hub</p>
       </footer>
     </div>
