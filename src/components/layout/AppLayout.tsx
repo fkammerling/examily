@@ -28,7 +28,7 @@ const AppLayout: React.FC = () => {
         <Outlet />
       </main>
       <footer className="py-4 bg-green-800 text-white text-center">
-        <p className="text-sm">© {new Date().getFullYear()} Green Exam Hub</p>
+        <p className="text-sm">© {new Date().getFullYear()} Examily</p>
       </footer>
     </div>
   );

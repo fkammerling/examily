@@ -9,6 +9,59 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      class_students: {
+        Row: {
+          class_id: string
+          id: string
+          joined_at: string
+          student_id: string
+        }
+        Insert: {
+          class_id: string
+          id?: string
+          joined_at?: string
+          student_id: string
+        }
+        Update: {
+          class_id?: string
+          id?: string
+          joined_at?: string
+          student_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "class_students_class_id_fkey"
+            columns: ["class_id"]
+            isOneToOne: false
+            referencedRelation: "classes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      classes: {
+        Row: {
+          created_at: string
+          created_by: string
+          description: string | null
+          id: string
+          name: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          description?: string | null
+          id?: string
+          name: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
       exam_attempts: {
         Row: {
           answers: Json | null
@@ -49,6 +102,7 @@ export type Database = {
       }
       exams: {
         Row: {
+          class_id: string | null
           created_at: string
           created_by: string
           description: string | null
@@ -59,6 +113,7 @@ export type Database = {
           title: string
         }
         Insert: {
+          class_id?: string | null
           created_at?: string
           created_by: string
           description?: string | null
@@ -69,6 +124,7 @@ export type Database = {
           title: string
         }
         Update: {
+          class_id?: string | null
           created_at?: string
           created_by?: string
           description?: string | null
@@ -78,31 +134,45 @@ export type Database = {
           time_limit?: number | null
           title?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "exams_class_id_fkey"
+            columns: ["class_id"]
+            isOneToOne: false
+            referencedRelation: "classes"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {
           avatar_url: string | null
           created_at: string
+          grade: string | null
           id: string
           name: string | null
           role: string | null
+          student_id: string | null
           updated_at: string
         }
         Insert: {
           avatar_url?: string | null
           created_at?: string
+          grade?: string | null
           id: string
           name?: string | null
           role?: string | null
+          student_id?: string | null
           updated_at?: string
         }
         Update: {
           avatar_url?: string | null
           created_at?: string
+          grade?: string | null
           id?: string
           name?: string | null
           role?: string | null
+          student_id?: string | null
           updated_at?: string
         }
         Relationships: []
