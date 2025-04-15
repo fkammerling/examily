@@ -336,7 +336,7 @@ const Login: React.FC = () => {
                       
                       <div className="space-y-2">
                         <Label htmlFor="class">Join Class (Optional)</Label>
-                        <SelectField
+                        <Select
                           value={selectedClass}
                           onValueChange={setSelectedClass}
                         >
@@ -356,7 +356,7 @@ const Login: React.FC = () => {
                               </SelectItem>
                             )}
                           </SelectContent>
-                        </SelectField>
+                        </Select>
                       </div>
                     </>
                   )}
