@@ -1,12 +1,13 @@
 
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Button } from '@/components/ui/button';
 import { BookOpen, Users, CheckSquare, Clock, Shield } from 'lucide-react';
 
 const Landing: React.FC = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
 
   const features = [
     {
@@ -36,6 +37,10 @@ const Landing: React.FC = () => {
     }
   ];
 
+  const handleGetStarted = () => {
+    navigate('/login');
+  };
+
   return (
     <div className="min-h-screen">
       <header className="bg-white shadow-sm">
@@ -45,8 +50,8 @@ const Landing: React.FC = () => {
               <BookOpen className="h-6 w-6 text-green-600" />
               <span className="text-xl font-semibold text-green-800">Examily</span>
             </div>
-            <Link to={user ? "/" : "/login"}>
-              <Button>{user ? "Dashboard" : "Login"}</Button>
+            <Link to="/login">
+              <Button>Login</Button>
             </Link>
           </div>
         </div>
@@ -62,11 +67,13 @@ const Landing: React.FC = () => {
             <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
               Streamline your exam creation, administration, and grading process with our comprehensive solution.
             </p>
-            <Link to="/login">
-              <Button size="lg" className="bg-green-600 hover:bg-green-700">
-                Get Started
-              </Button>
-            </Link>
+            <Button 
+              size="lg" 
+              className="bg-green-600 hover:bg-green-700"
+              onClick={handleGetStarted}
+            >
+              Get Started
+            </Button>
           </div>
         </section>
 
