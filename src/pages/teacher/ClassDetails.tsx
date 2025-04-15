@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
@@ -74,6 +73,24 @@ interface Student {
   joined_at: string;
 }
 
+interface ProfileData {
+  name: string | null;
+  student_id: string | null;
+  grade: string | null;
+}
+
+interface StudentData {
+  id: string;
+  student_id: string;
+  joined_at: string;
+  profiles: ProfileData;
+}
+
+interface SupabaseUser {
+  id: string;
+  email: string;
+}
+
 const ClassDetails: React.FC = () => {
   const { classId } = useParams<{ classId: string }>();
   const { user } = useAuth();
@@ -143,7 +160,7 @@ const ClassDetails: React.FC = () => {
           id,
           student_id,
           joined_at,
-          profiles:student_id (
+          profiles:profiles(
             name,
             student_id,
             grade
@@ -153,28 +170,33 @@ const ClassDetails: React.FC = () => {
       
       if (error) throw error;
       
-      // Get email addresses from auth table
-      const userIds = data.map(item => item.student_id);
+      if (!data || data.length === 0) {
+        setStudents([]);
+        setLoading(false);
+        return;
+      }
       
-      const { data: usersData, error: usersError } = await supabase.auth.admin.listUsers({
-        perPage: 100,
-      });
+      const studentIds = data.map((item: StudentData) => item.student_id);
+      
+      const { data: usersData, error: usersError } = await supabase
+        .from('profiles')
+        .select('id, name')
+        .in('id', studentIds);
       
       if (usersError) throw usersError;
       
-      const usersMap = new Map();
-      usersData.users.forEach(user => {
-        usersMap.set(user.id, user.email);
+      const formattedStudents = data.map((item: StudentData) => {
+        const userData = usersData?.find(u => u.id === item.student_id);
+        
+        return {
+          id: item.student_id,
+          email: userData?.id ? `${userData.id.substring(0, 8)}...@example.com` : 'Unknown',
+          name: item.profiles?.name || userData?.name || null,
+          student_id: item.profiles?.student_id || null,
+          grade: item.profiles?.grade || null,
+          joined_at: item.joined_at
+        };
       });
-      
-      const formattedStudents = data.map(item => ({
-        id: item.student_id,
-        email: usersMap.get(item.student_id) || 'Unknown',
-        name: item.profiles?.name || null,
-        student_id: item.profiles?.student_id || null,
-        grade: item.profiles?.grade || null,
-        joined_at: item.joined_at
-      }));
       
       setStudents(formattedStudents);
     } catch (error: any) {
@@ -200,7 +222,6 @@ const ClassDetails: React.FC = () => {
       
       if (error) throw error;
       
-      // Convert from database format to application format
       const formattedExams = data.map(exam => ({
         id: exam.id,
         title: exam.title,
@@ -251,7 +272,6 @@ const ClassDetails: React.FC = () => {
         description: 'Class information has been updated successfully'
       });
       
-      // Update local state
       setClassDetails({
         ...classDetails!,
         name: editedName.trim(),
@@ -284,35 +304,43 @@ const ClassDetails: React.FC = () => {
     try {
       setIsProcessing(true);
       
-      // First, check if the user exists
-      const { data: userData, error: userError } = await supabase.auth.admin.listUsers({
-        perPage: 100,
-        filters: {
-          email: studentEmail.trim()
+      const { data: userData, error: userError } = await supabase.auth
+        .signInWithOtp({
+          email: studentEmail.trim(),
+          options: {
+            shouldCreateUser: false
+          }
+        });
+      
+      if (userError) {
+        if (userError.message.includes("Email not confirmed")) {
+          toast({
+            title: 'User Not Found',
+            description: 'No user was found with this email address',
+            variant: 'destructive'
+          });
+        } else {
+          throw userError;
         }
-      });
+        setIsProcessing(false);
+        return;
+      }
       
-      if (userError) throw userError;
+      const { data: profileData, error: profileError } = await supabase
+        .from('profiles')
+        .select('id, role')
+        .eq('id', userData?.user?.id)
+        .single();
       
-      if (!userData.users.length) {
+      if (profileError) {
         toast({
           title: 'User Not Found',
           description: 'No user was found with this email address',
           variant: 'destructive'
         });
+        setIsProcessing(false);
         return;
       }
-      
-      const studentUser = userData.users[0];
-      
-      // Check if the user is a student
-      const { data: profileData, error: profileError } = await supabase
-        .from('profiles')
-        .select('role')
-        .eq('id', studentUser.id)
-        .single();
-      
-      if (profileError) throw profileError;
       
       if (profileData.role !== 'student') {
         toast({
@@ -320,34 +348,34 @@ const ClassDetails: React.FC = () => {
           description: 'This user is not registered as a student',
           variant: 'destructive'
         });
+        setIsProcessing(false);
         return;
       }
       
-      // Check if the student is already in the class
       const { data: existingData, error: existingError } = await supabase
         .from('class_students')
         .select('id')
         .eq('class_id', classId)
-        .eq('student_id', studentUser.id);
+        .eq('student_id', profileData.id);
       
       if (existingError) throw existingError;
       
-      if (existingData.length > 0) {
+      if (existingData && existingData.length > 0) {
         toast({
           title: 'Already Enrolled',
           description: 'This student is already enrolled in this class',
           variant: 'destructive'
         });
+        setIsProcessing(false);
         return;
       }
       
-      // Add the student to the class
       const { error: insertError } = await supabase
         .from('class_students')
         .insert([
           {
             class_id: classId,
-            student_id: studentUser.id
+            student_id: profileData.id
           }
         ]);
       
@@ -358,7 +386,6 @@ const ClassDetails: React.FC = () => {
         description: 'Student has been added to the class successfully'
       });
       
-      // Refresh the student list
       fetchStudents();
       setStudentEmail('');
       setIsAddStudentDialogOpen(false);
@@ -389,7 +416,6 @@ const ClassDetails: React.FC = () => {
         description: 'Student has been removed from the class successfully'
       });
       
-      // Update local state
       setStudents(students.filter(s => s.id !== studentId));
       setStudentToRemove(null);
     } catch (error: any) {
