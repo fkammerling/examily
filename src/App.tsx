@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -13,6 +12,7 @@ import ExamForm from "./pages/teacher/ExamForm";
 import ExamTaking from "./pages/student/ExamTaking";
 import ExamResults from "./pages/student/ExamResults";
 import ExamPreview from "./pages/teacher/ExamPreview";
+import ClassManagement from "./pages/teacher/ClassManagement";
 import { AuthProvider } from "./context/AuthContext";
 import { ExamProvider } from "./context/ExamContext";
 
@@ -36,6 +36,7 @@ const App = () => (
                 <Route path="/exams/view/:examId" element={<ExamPreview />} />
                 <Route path="/exams/take/:examId" element={<ExamTaking />} />
                 <Route path="/results/:attemptId" element={<ExamResults />} />
+                <Route path="/classes" element={<ClassManagement />} />
               </Route>
               
               <Route path="*" element={<NotFound />} />

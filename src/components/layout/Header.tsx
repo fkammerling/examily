@@ -1,9 +1,9 @@
-
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { Button } from '../ui/button';
 import { LogOut, User, BookOpen } from 'lucide-react';
+import TeacherNav from './TeacherNav';
 
 const Header: React.FC = () => {
   const { user, logout } = useAuth();
@@ -18,12 +18,15 @@ const Header: React.FC = () => {
     <header className="bg-white shadow-sm border-b">
       <div className="container mx-auto px-4 py-4">
         <div className="flex justify-between items-center">
-          <Link to="/" className="flex items-center space-x-2">
-            <BookOpen className="h-6 w-6 text-green-600" />
-            <span className="text-xl font-semibold text-green-800">
-              Examily
-            </span>
-          </Link>
+          <div className="flex items-center space-x-8">
+            <Link to="/" className="flex items-center space-x-2">
+              <BookOpen className="h-6 w-6 text-green-600" />
+              <span className="text-xl font-semibold text-green-800">
+                Examily
+              </span>
+            </Link>
+            {user?.role === 'teacher' && <TeacherNav />}
+          </div>
 
           <div className="flex items-center space-x-4">
             {user && (
