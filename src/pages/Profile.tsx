@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Label } from '@/components/ui/label';
 import { useToast } from '../hooks/use-toast';
@@ -15,13 +15,11 @@ const Profile: React.FC = () => {
   const [editMode, setEditMode] = useState(false);
   const [name, setName] = useState(user?.name || '');
   const [email, setEmail] = useState(user?.email || '');
-  const [studyProgram, setStudyProgram] = useState(user?.study_program || '');
-  const [schoolClass, setSchoolClass] = useState(user?.schoolClass || '');
-  const [office, setOffice] = useState(user?.office || '');
-  const [title, setTitle] = useState(user?.title || '');
-  const [subjects, setSubjects] = useState(
-    Array.isArray(user?.subjects) ? user.subjects.join(', ') : ''
-  );
+  const [studyProgram, setStudyProgram] = useState('');
+  const [schoolClass, setSchoolClass] = useState('');
+  const [office, setOffice] = useState('');
+  const [title, setTitle] = useState('');
+  const [subjects, setSubjects] = useState('');
   const [saving, setSaving] = useState(false);
   const { toast } = useToast();
 
@@ -36,7 +34,7 @@ const Profile: React.FC = () => {
           schoolClass,
           office,
           title,
-          subjects: subjects.split(',').map(s => s.trim()),
+          subjects: subjects.split(',').map(s => s.trim()).filter(s => s !== ''),
         })
         .eq('id', user?.id);
 
@@ -58,7 +56,7 @@ const Profile: React.FC = () => {
     }
   };
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (user?.id) {
       supabase
         .from('profiles')
@@ -69,11 +67,19 @@ const Profile: React.FC = () => {
           if (!error && data) {
             setName(data.name || '');
             setEmail(user.email || '');
+            
+            // Handle the fields that might not exist in the database yet
             setStudyProgram(data.study_program || '');
             setSchoolClass(data.schoolClass || '');
             setOffice(data.office || '');
             setTitle(data.title || '');
-            setSubjects(Array.isArray(data.subjects) ? data.subjects.join(', ') : '');
+            
+            // Safely handle subjects array
+            if (data.subjects && Array.isArray(data.subjects)) {
+              setSubjects(data.subjects.join(', '));
+            } else {
+              setSubjects('');
+            }
           }
         });
     }
