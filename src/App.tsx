@@ -13,6 +13,7 @@ import ExamTaking from "./pages/student/ExamTaking";
 import ExamResults from "./pages/student/ExamResults";
 import ExamPreview from "./pages/teacher/ExamPreview";
 import ClassManagement from "./pages/teacher/ClassManagement";
+import Profile from "./pages/Profile"; // Add this line
 import { AuthProvider } from "./context/AuthContext";
 import { ExamProvider } from "./context/ExamContext";
 
@@ -37,6 +38,7 @@ const App = () => (
                 <Route path="/exams/take/:examId" element={<ExamTaking />} />
                 <Route path="/results/:attemptId" element={<ExamResults />} />
                 <Route path="/classes" element={<ClassManagement />} />
+                <Route path="/profile" element={<Profile />} /> // Add this line
               </Route>
               
               <Route path="*" element={<NotFound />} />
