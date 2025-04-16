@@ -1,3 +1,4 @@
+
 export type UserRole = 'teacher' | 'student';
 
 export interface User {
@@ -8,6 +9,10 @@ export interface User {
   avatarUrl?: string;
   profileType?: 'bachelor' | 'master';
   schoolClass?: string;
+  study_program?: string;
+  office?: string;
+  title?: string;
+  subjects?: string[];
 }
 
 export type QuestionType = 'multiple_choice' | 'short_answer' | 'long_answer';

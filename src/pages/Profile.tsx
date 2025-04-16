@@ -15,11 +15,13 @@ const Profile: React.FC = () => {
   const [editMode, setEditMode] = useState(false);
   const [name, setName] = useState(user?.name || '');
   const [email, setEmail] = useState(user?.email || '');
-  const [studyProgram, setStudyProgram] = useState('');
+  const [studyProgram, setStudyProgram] = useState(user?.study_program || '');
   const [schoolClass, setSchoolClass] = useState(user?.schoolClass || '');
-  const [office, setOffice] = useState('');
-  const [title, setTitle] = useState('');
-  const [subjects, setSubjects] = useState('');
+  const [office, setOffice] = useState(user?.office || '');
+  const [title, setTitle] = useState(user?.title || '');
+  const [subjects, setSubjects] = useState(
+    Array.isArray(user?.subjects) ? user.subjects.join(', ') : ''
+  );
   const [saving, setSaving] = useState(false);
   const { toast } = useToast();
 
@@ -30,7 +32,6 @@ const Profile: React.FC = () => {
         .from('profiles')
         .update({
           name,
-          email,
           study_program: studyProgram,
           schoolClass,
           office,
