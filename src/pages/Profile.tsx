@@ -4,16 +4,37 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useState } from 'react';
+import { supabase } from '@/integrations/supabase/client'; // Import supabase instance
 
 const Profile: React.FC = () => {
   const { user } = useAuth();
   const [editMode, setEditMode] = useState(false);
   const [name, setName] = useState(user?.name || '');
-  const [email] = useState(user?.email || '');
+  const [email, setEmail] = useState(user?.email || '');
+  const [profileType, setProfileType] = useState<'bachelor' | 'master' | ''>(user?.profileType || '');
+  const [schoolClass, setSchoolClass] = useState(user?.schoolClass || '');
+  const [saving, setSaving] = useState(false);
 
-  const handleSave = () => {
-    // TODO: Implement profile update logic (API call)
-    setEditMode(false);
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      // Save profile changes to Supabase
+      const { error } = await supabase
+        .from('profiles')
+        .update({
+          name,
+          email,
+          profileType,
+          schoolClass
+        })
+        .eq('id', user?.id);
+      if (error) throw error;
+      setEditMode(false);
+    } catch (err) {
+      alert('Failed to save profile.');
+    } finally {
+      setSaving(false);
+    }
   };
 
   if (!user) {
@@ -38,17 +59,41 @@ const Profile: React.FC = () => {
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-            <div className="text-base text-gray-900">{email}</div>
+            {editMode ? (
+              <Input value={email} onChange={e => setEmail(e.target.value)} />
+            ) : (
+              <div className="text-base text-gray-900">{user.email}</div>
+            )}
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Role</label>
-            <div className="text-base text-gray-900 capitalize">{user.role}</div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Profile Type</label>
+            {editMode ? (
+              <select
+                className="w-full border rounded-md px-3 py-2"
+                value={profileType}
+                onChange={e => setProfileType(e.target.value as 'bachelor' | 'master' | '')}
+              >
+                <option value="">Select...</option>
+                <option value="bachelor">Bachelor</option>
+                <option value="master">Master</option>
+              </select>
+            ) : (
+              <div className="text-base text-gray-900 capitalize">{user.profileType || '-'}</div>
+            )}
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">School Class</label>
+            {editMode ? (
+              <Input value={schoolClass} onChange={e => setSchoolClass(e.target.value)} />
+            ) : (
+              <div className="text-base text-gray-900">{user.schoolClass || '-'}</div>
+            )}
           </div>
           <div className="flex gap-4 pt-4">
             {editMode ? (
               <>
-                <Button type="button" onClick={handleSave}>
-                  Save
+                <Button type="button" onClick={handleSave} disabled={saving}>
+                  {saving ? 'Saving...' : 'Save'}
                 </Button>
                 <Button type="button" variant="outline" onClick={() => setEditMode(false)}>
                   Cancel
@@ -59,6 +104,9 @@ const Profile: React.FC = () => {
                 Edit Profile
               </Button>
             )}
+            <Button type="button" variant="secondary" onClick={() => window.location.href = '/'}>
+              Return to Dashboard
+            </Button>
           </div>
         </CardContent>
       </Card>

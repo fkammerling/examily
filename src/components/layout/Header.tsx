@@ -40,7 +40,9 @@ const Header: React.FC = () => {
                   >
                     {user.name} ({user.role})
                   </button>
-                  <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-50 hidden group-hover:block" id="profile-menu">
+                  <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-50 opacity-0 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto transition-opacity duration-150"
+                       id="profile-menu"
+                       style={{ top: '100%', left: '50%', transform: 'translateX(-50%)', minWidth: '180px' }}>
                     <div className="py-1">
                       <button className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" onClick={() => navigate('/profile')}>
                         Profile & Details
